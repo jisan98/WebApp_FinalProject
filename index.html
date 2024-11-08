@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Monitoring Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>Busan's Air Quality Monitoring Dashboard</h1>
+        <p>Header and Footer color changes according to the concentration of PM 2.5 (Air Quality).</p>
+        <p>Blue: Very Good (0-15µg/m³)  Green: Good (15-50µg/m³)  Yellow: Normal (50-100µg/m³)  Red: Bad (>100µg/m³)</p>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <ul>
+            <li><a href="#Home">Home</a></li>
+            <li><a href="#Data">Data</a></li>
+            <li><a href="#About">About</a></li>
+        </ul>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="Home">
+        <h2>Current Air Quality</h2>
+        <div class="main-sources">
+            <div class="card">Temperature: <span id="temperature">--</span> °C</div>
+            <div class="card">Humidity: <span id="humidity">--</span> %</div>
+        </div>
+        <h3>Pollutant Levels</h3>
+        <div class="pollutants">
+            <div class="pollutant">PM2.5: <span id="pm25">--</span> µg/m³</div>
+            <div class="pollutant">PM10: <span id="pm10">--</span> µg/m³</div>
+            <div class="pollutant">NOx: <span id="nox">--</span> ppb</div>
+            <div class="pollutant">NH3: <span id="nh3">--</span> ppb</div>
+            <div class="pollutant">CO2: <span id="co2">--</span> ppm</div>
+            <div class="pollutant">SO2: <span id="so2">--</span> ppb</div>
+            <div class="pollutant">VOC: <span id="voc">--</span> ppb</div>
+        </div>
+    </section>
+
+    <!-- Data Section -->
+    <section id="Data">
+        <h2>Historical Data and Analysis</h2>
+        <div class="chart-container">
+            <h3>Temperature and Humidity Trends over the past 7 days </h3>
+            <canvas id="lineChart"></canvas>
+            <h3>Real-time pollutant level </h3>
+            <canvas id="barChart"></canvas>
+            <h3>Real-time pollutant distribution </h3>
+            <canvas id="donutChart"></canvas>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="About">
+        <h2>About This Project</h2>
+        <p>This project is developed to raise awareness of air quality levels and help people understand the impact of pollutants.</p>
+        <p>Name: Jisan Kim</p>
+        <p>Email: kjsan98@gmail.com</p>
+        <p>Used API: <a href="https://openweathermap.org/" target="_blank">https://openweathermap.org/</a></p>
+        
+        <br><br><br><br>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Air Quality Monitoring. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
