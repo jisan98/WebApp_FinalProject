@@ -61,6 +61,23 @@ section {
   text-align: center;
 }
 
+.chart-container {
+  display: flex;
+  justify-content: space-between; /* 그래프 간의 간격을 설정 */
+  flex-wrap: wrap; /* 화면이 작을 때 차트들이 아래로 내려가도록 */
+}
+
+#chartContainer {
+  width: 30%;
+  height: 500px;
+  padding: 10px;
+}
+
+canvas {
+  width: 100%; /* 캔버스가 컨테이너에 맞게 확장되도록 */
+  height: auto; /* 비율에 맞게 세로 크기 자동 조정 */
+}
+
 footer {
   text-align: center;
   background-color: #f4f4f9;

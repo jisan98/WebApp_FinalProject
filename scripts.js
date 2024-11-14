@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     },
     options: {
+      
       scales: {
         'y-axis-1': {
           type: 'linear',
@@ -108,11 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error fetching weather data:', weatherData.message);
       }
 
-        // 오늘의 온도와 습도
+        // Today's Temperature & Humidity
         const todayTemp = weatherData.main.temp.toFixed(1);  // 오늘의 온도 (섭씨)
         const todayHumidity = weatherData.main.humidity;  // 오늘의 습도 (%)
 
-        // 8일 간의 데이터를 만들기 위한 함수
+        // Function for generating data over 8 days
         function generateWeatherData(baseTemp, baseHumidity) {
           const temperatures = [];
           const humidities = [];
