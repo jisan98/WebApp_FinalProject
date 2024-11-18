@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Fetch weather and air quality data from OpenWeather API
-  async function fetchAirQualityData() {
+  async function AQI() {
     try {
       // Fetch current weather data (temperature and humidity)
       const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`);
@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
         // Today's Temperature & Humidity
-        const todayTemp = weatherData.main.temp.toFixed(1);  // 오늘의 온도 (섭씨)
-        const todayHumidity = weatherData.main.humidity;  // 오늘의 습도 (%)
+        const todayTemp = weatherData.main.temp.toFixed(1);  // 온도
+        const todayHumidity = weatherData.main.humidity;  // 오늘습도
 
         // Function for generating data over 8 days
         function generateWeatherData(baseTemp, baseHumidity) {
@@ -220,8 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Error:', error);
     }
   }
-
-  // Fetch data every 30 minutes
-  fetchAirQualityData();
-  setInterval(fetchAirQualityData, 1800000); // Update data every 30 minutes
+  
+  AQI();
+  setInterval(AQI, 1800000); // Update data every 30 minutes
 });
