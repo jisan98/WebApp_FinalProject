@@ -1,8 +1,49 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const apiKey = '01f7efb81e543884be50db1d21e5aa65'; // Replace with your OpenWeather API key
-  const city = 'Busan'; // You can change this to any city you prefer
-  const lat = '35'; // Latitude for Busan
-  const lon = '129'; // Longitude for Busan
+  
+    // 맵 초기화
+  const map = new ol.Map({
+    target: 'map', // HTML 요소 ID
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM() // OpenStreetMap 사용
+      })
+    ],
+    view: new ol.View({
+      center: ol.proj.fromLonLat([126.9780, 37.5665]), // 초기 좌표 (서울)
+      zoom: 12 // 줌 레벨
+    })
+  });
+
+  function updateMapCenter(lat, lon) {
+    const view = map.getView();
+    const coordinates = ol.proj.fromLonLat([lon, lat]); // 경도(lon), 위도(lat)를 OpenLayers 좌표계로 변환
+    view.setCenter(coordinates);
+    view.setZoom(12); // 원하는 줌 레벨로 설정
+  }
+
+  function getCityName(latitude, longitude) {
+    const ApiKey = '737bbe2e76644c178038fcaebc838642'; // OpenCage API key
+    const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${ApiKey}&language=en`;
+  
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.results && data.results.length > 0) {
+          const city = data.results[0].components.city;
+          document.getElementById("UserLocation").innerHTML = "Air Quality Monitoring Dashboard in " + city;
+        } else {
+          console.log("City not found.");
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching city data: ", error);
+      });
+  }
+
+  const apiKey = '01f7efb81e543884be50db1d21e5aa65'; // OpenWeather API key
+  const apiKey_2 = '372601c0124e464c85452539242511'; // WeatherAPI API key
+  //initial location: Busan
+  
 
   let pm25Data = [];
   let pm10Data = [];
@@ -13,14 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let vocData = [];
   let temperatureData = [];
   let humidityData = [];
-  let daysOfWeek = [];
 
   // Initialize Chart.js charts
   const ctxLine = document.getElementById('lineChart').getContext('2d');
   const lineChart = new Chart(ctxLine, {
     type: 'line',
     data: {
-      labels: ["7d ago", "6d ago", "5d ago", "4d ago", "3d ago", "2d ago", "1d ago", "Today"], // Placeholder for x-axis labels (time of day)
+      labels: [], // Placeholder for x-axis labels (time of day)
       datasets: [
         {
           label: 'Temperature (°C)',
@@ -41,15 +81,41 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     },
     options: {
-      
       scales: {
+        x: {
+          ticks: {
+            font: {
+              size: 16 // Increase font size for x-axis labels
+            }
+          }
+        },
         'y-axis-1': {
           type: 'linear',
-          position: 'left'
+          position: 'left',
+          ticks: {
+            font: {
+              size: 16 // Increase font size for left y-axis labels
+            }
+          }
         },
         'y-axis-2': {
+          beginAtZero: true,
           type: 'linear',
-          position: 'right'
+          position: 'right',
+          ticks: {
+            font: {
+              size: 16 // Increase font size for right y-axis labels
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: 18 // Increase font size for the legend
+            }
+          }
         }
       }
     }
@@ -72,7 +138,28 @@ document.addEventListener('DOMContentLoaded', () => {
       responsive: true,
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            font: {
+              size: 16 // Adjust the font size for y-axis labels
+            }
+          }
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 10 // Adjust the font size for x-axis labels
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: 18 // Adjust the font size for the legend
+            }
+          }
         }
       }
     }
@@ -88,66 +175,95 @@ document.addEventListener('DOMContentLoaded', () => {
         backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)'],
         hoverOffset: 4
       }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: 18 // Adjust the font size for the legend
+            }
+          }
+        },
+        tooltip: {
+          bodyFont: {
+            size: 16 // Adjust the font size for the tooltips
+          }
+        }
+      }
     }
   });
 
   // Fetch weather and air quality data from OpenWeather API
-  async function AQI() {
+  async function AQI(lat, lon) {
     try {
+
+      
+
       // Fetch current weather data (temperature and humidity)
       const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`);
       const weatherData = await weatherResponse.json();
 
-      // Check if the weather data response is successful
-      if (weatherResponse.ok) {
-        // Update temperature and humidity
-        document.getElementById('temperature').textContent = weatherData.main.temp.toFixed(1);
-        document.getElementById('humidity').textContent = weatherData.main.humidity;
-        temperatureData.push(weatherData.main.temp.toFixed(1));
-        humidityData.push(weatherData.main.humidity);
-      } else {
-        console.error('Error fetching weather data:', weatherData.message);
-      }
+      const ForecastResponse = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey_2}&q=${lat},${lon}&days=7&aqi=no&alerts=no`);
+      const ForecastData = await ForecastResponse.json();
 
-        // Today's Temperature & Humidity
-        const todayTemp = weatherData.main.temp.toFixed(1);  // 온도
-        const todayHumidity = weatherData.main.humidity;  // 오늘습도
+      const forecast = ForecastData.forecast.forecastday;
 
-        // Function for generating data over 8 days
-        function generateWeatherData(baseTemp, baseHumidity) {
-          const temperatures = [];
-          const humidities = [];
-          
-          for (let i = 0; i < 7; i++) {
-            // 온도와 습도에 -2에서 +2의 랜덤 값을 더함
-            const randomTemp = (Math.random() * 4 - 2).toFixed(1);  // -2 ~ +2 랜덤 온도
-            const randomHumidity = Math.floor(Math.random() * 5 - 2);  // -2 ~ +2 랜덤 습도
+      if (Array.isArray(forecast)) {
+        // Get the container where we will append the cards
+        const container = document.getElementById('weather-cards-container');
+        container.innerHTML = ''; // Clear existing cards
 
-            temperatures.push((parseFloat(baseTemp) + parseFloat(randomTemp)).toFixed(1));  // 온도 값
-            humidities.push(Math.min(100, Math.max(0, baseHumidity + randomHumidity)));  // 습도 값 (0~100 범위)
-          }
+        // Prepare data for the line chart
+        const chartLabels = []; // To store dates
+        const temperatureData = []; // To store temperature data
+        const humidityData = []; // To store humidity data 
 
-          temperatures.push(baseTemp);
-          humidities.push(baseHumidity);
+        // Loop through the forecast data for the next 7 days and generate cards
+        forecast.forEach((dayData) => {
+            // Create a new card element
+            const card = document.createElement('div');
+            card.classList.add('card');
 
-          return { temperatures, humidities };
-        }
+            // Format the date (e.g., "2024-11-25")
+            const date = new Date(dayData.date); // Date is already in a readable format
+            const options = { month: 'short', day: 'numeric' }; // Customize format
+            const dateString = date.toLocaleDateString('en-US', options); // "November 25"
 
-        // 8일 간의 온도와 습도 데이터 생성
-        const { temperatures, humidities } = generateWeatherData(todayTemp, todayHumidity);
+            const weatherIconUrl = `https:${dayData.day.condition.icon}`;
 
-        lineChart.data.datasets[0].data = temperatures; // 온도
-        lineChart.data.datasets[1].data = humidities; // 습도
-        lineChart.update();
+            // Create the card content for each day
+            card.innerHTML = `
+                <p class="date" style="font-size: 30px; font-weight: bold;">${dateString}</p>
+                <img src="${weatherIconUrl}" alt="${dayData.day.condition.text}" style="display: block; margin: 0 auto; width: 100px; height: 100px;">
+                <p><i class="fas fa-thermometer-half" style="font-size: 30px;"></i> <span class="temperature" style="font-size: 30px; font-weight: bold;">${dayData.day.avgtemp_c}</span> °C</p>
+                <p><i class="fas fa-tint" style="font-size: 30px;"></i> <span class="humidity" style="font-size: 30px; font-weight: bold;">${dayData.day.avghumidity}</span> %</p>
+            `;
 
-      
+            // Append the card to the container
+            container.appendChild(card);
+
+            // Add data to the chart
+            chartLabels.push(dateString); // Add formatted date to labels
+            temperatureData.push(dayData.day.avgtemp_c); // Add average temperature
+            humidityData.push(dayData.day.avghumidity); // Add average humidity
+        });
+
+        // Update the line chart with the new data
+        lineChart.data.labels = chartLabels; // Set x-axis labels
+        lineChart.data.datasets[0].data = temperatureData; // Set temperature dataset
+        lineChart.data.datasets[1].data = humidityData; // Set humidity dataset
+        lineChart.update(); // Refresh the chart to reflect changes
+
+    } else {
+        console.error('Forecast data is not an array:', forecast);
+    };
 
       // Fetch air quality data (pollutants)
       const airQualityResponse = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`);
       const airQualityData = await airQualityResponse.json();
       
-      
-
       // Check if the air quality response is successful
       if (airQualityResponse.ok) {
         const airComponents = airQualityData.list[0].components;
@@ -201,15 +317,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (airComponents.pm2_5.toFixed(1) <= 15) { 
           header.style.backgroundColor = '#007bff';
           footer.style.backgroundColor = '#007bff';
+          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Very Good! 😀";
         } else if (airComponents.pm2_5.toFixed(1) <= 50) {
           header.style.backgroundColor = 'green';
           footer.style.backgroundColor = 'green';
+          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Good. 🙂";
         } else if (airComponents.pm2_5.toFixed(1) <= 100) {
-          header.style.backgroundColor = 'yellow';
-          footer.style.backgroundColor = 'yellow';
+          header.style.backgroundColor = 'orange';
+          footer.style.backgroundColor = 'orange';
+          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Normal. 😐";
         } else {
           header.style.backgroundColor = 'red';
           footer.style.backgroundColor = 'red';
+          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Bad! 😢";
         }
 
 
@@ -221,6 +341,127 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  AQI();
-  setInterval(AQI, 1800000); // Update data every 30 minutes
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      lat = position.coords.latitude;
+      lon = position.coords.longitude;
+      getCityName(lat, lon);
+      AQI(lat, lon);
+      updateMapCenter(lat, lon); // 지도 위치 업데이트
+    }, function(error) {
+      console.error("Error occurred. Error code: " + error.code);
+    });
+  } else {
+    console.log("Geolocation is not available in this browser.");
+  }
+
+  document.getElementById("changeLocationButton").addEventListener("click", function() {
+    const userInput = document.getElementById("locationInput").value.trim();
+
+    if (!userInput) {
+      alert("Please enter a city or coordinates.");
+      return;
+    }
+
+    // Check if the input is coordinates (lat, lon)
+    const isCoordinates = userInput.match(/^(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)$/);
+
+    if (isCoordinates) {
+      // If input is coordinates (lat, lon), parse and call AQI directly
+      const [lat, lon] = userInput.split(',').map(coord => parseFloat(coord.trim()));
+      getCityName(lat, lon);  // Get city name based on new coordinates
+      AQI(lat, lon);          // Update air quality and weather data with new coordinates
+      updateMapCenter(lat, lon); // 지도 위치 업데이트
+    } else {
+      // If input is a city name, fetch coordinates using OpenCage Geocoding API
+      const apiKey = '737bbe2e76644c178038fcaebc838642'; // OpenCage API key
+      const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${userInput}&key=${apiKey}&language=en`;
+
+      fetch(geocodeUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.results && data.results.length > 0) {
+            const lat = data.results[0].geometry.lat;
+            const lon = data.results[0].geometry.lng;
+            getCityName(lat, lon);  // Get city name based on new coordinates
+            AQI(lat, lon);          // Update air quality and weather data with new coordinates
+            updateMapCenter(lat, lon); // 지도 위치 업데이트
+          } else {
+            alert("City not found.");
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching city data: ", error);
+        });
+    }
+  });
+
+  let alertShown = false;  // 플래그 변수로 alert가 한 번만 뜨도록 설정
+
+document.getElementById('locationInput').addEventListener('keydown', function(event) {
+    // 엔터키가 눌렸을 때만 실행
+    if (event.key === 'Enter') {
+        const userInput = document.getElementById("locationInput").value.trim();
+
+        if (!userInput) {
+            alert("Please enter a city or coordinates.");
+            return;
+        }
+
+        // Check if the input is coordinates (lat, lon)
+        const isCoordinates = userInput.match(/^(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)$/);
+
+        if (isCoordinates) {
+            // If input is coordinates (lat, lon), parse and call AQI directly
+            const [lat, lon] = userInput.split(',').map(coord => parseFloat(coord.trim()));
+            getCityName(lat, lon);  // Get city name based on new coordinates
+            AQI(lat, lon);          // Update air quality and weather data with new coordinates
+            updateMapCenter(lat, lon); // 지도 위치 업데이트
+        } else {
+            // If input is a city name, fetch coordinates using OpenCage Geocoding API
+            const apiKey = '737bbe2e76644c178038fcaebc838642'; // OpenCage API key
+            const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${userInput}&key=${apiKey}&language=en`;
+
+            fetch(geocodeUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results && data.results.length > 0) {
+                        const lat = data.results[0].geometry.lat;
+                        const lon = data.results[0].geometry.lng;
+                        getCityName(lat, lon);  // Get city name based on new coordinates
+                        AQI(lat, lon);          // Update air quality and weather data with new coordinates
+                        updateMapCenter(lat, lon); // 지도 위치 업데이트
+
+                        // 도시를 찾았으면 alert 플래그 초기화
+                        alertShown = false;
+                    } else {
+                        if (!alertShown) {
+                            alert("City not found.");
+                            alertShown = true;  // 알림 표시 후 플래그를 true로 설정하여 다시 표시되지 않도록 함
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching city data: ", error);
+                });
+        }
+    }
+  });
+
+  // 클릭 이벤트 추가
+  map.on('click', function (event) {
+    // 클릭된 위치의 좌표 가져오기
+    const coordinate = event.coordinate;
+    
+    // 좌표를 위도/경도로 변환
+    const lonLat = ol.proj.toLonLat(coordinate);
+    const lon = lonLat[0];
+    const lat = lonLat[1];
+
+    getCityName(lat, lon);  // Get city name based on new coordinates
+    AQI(lat, lon);          // Update air quality and weather data with new coordinates
+    updateMapCenter(lat, lon); // 지도 위치 업데이트
+  });
+
+
 });
