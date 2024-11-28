@@ -87,9 +87,8 @@ section {
 .chart-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   margin-top: 30px;
-  margin-bottom: 100px;
 }
 
 .chart-deck {
@@ -101,6 +100,7 @@ section {
 
 .chart-card {
   width:45%;
+  height: 500px;
   transition: transform 0.5s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -111,7 +111,6 @@ section {
 
 /* 주 카드 (가장 앞에 위치한 카드) */
 .main-chart {
-  height: 500px;
   z-index: 2; /* 맨 앞에 오도록 */
 }
 
@@ -126,17 +125,17 @@ section {
 }
 
 .chart-card-body {
+  display: flex; /* Flexbox 사용 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  align-items: center; /* 세로 가운데 정렬 */
+  height: 100%; /* 부모 요소의 전체 높이 사용 */
   padding: 10px;
+  box-sizing: border-box; /* padding 포함 크기 계산 */
 }
 
 canvas {
   width: auto; /* 캔버스가 컨테이너에 맞게 확장되도록 */
-  height: auto; /* 비율에 맞게 세로 크기 자동 조정 */
-}
-
-canvas.Bar {
-  width: auto;
-  height: 1200px;
+  /*height: 20%;*/
 }
 
 footer {

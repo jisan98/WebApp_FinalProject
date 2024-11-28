@@ -191,7 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
             size: 16 // Adjust the font size for the tooltips
           }
         }
-      }
+      },
+      circumference: 180, // 반원 형태로 만들기 위해 설정 (180도 = 반원)
+      rotation: -90, // 반원을 위쪽으로 정렬 (시계 방향으로 -90도 회전)
     }
   });
 
