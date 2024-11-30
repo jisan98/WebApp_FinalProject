@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         donutChart.update();
 
         //The color changer depending on AQI (PM2.5)
-        //광주 미세먼지모니터링센터 왈, PM2.5의 경우 15까진 좋음, 50까진 보통, 100까진 나쁨, 그 이후론 매우 나쁨
+        //한국 환경부 기준
 
         const header = document.querySelector('header');
         const footer = document.querySelector('footer');
@@ -320,18 +320,18 @@ document.addEventListener('DOMContentLoaded', () => {
           header.style.backgroundColor = '#007bff';
           footer.style.backgroundColor = '#007bff';
           document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Very Good! 😀";
-        } else if (airComponents.pm2_5.toFixed(1) <= 50) {
+        } else if (airComponents.pm2_5.toFixed(1) <= 35) {
           header.style.backgroundColor = 'green';
           footer.style.backgroundColor = 'green';
-          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Good. 🙂";
-        } else if (airComponents.pm2_5.toFixed(1) <= 100) {
+          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Normal. 🙂";
+        } else if (airComponents.pm2_5.toFixed(1) <= 75) {
           header.style.backgroundColor = 'orange';
           footer.style.backgroundColor = 'orange';
-          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Normal. 😐";
+          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Bad. 😐";
         } else {
           header.style.backgroundColor = 'red';
           footer.style.backgroundColor = 'red';
-          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Bad! 😢";
+          document.getElementById("curr_AQ").innerHTML = "Current Air Quality is Very Bad! 😢";
         }
 
 
@@ -450,8 +450,7 @@ document.getElementById('locationInput').addEventListener('keydown', function(ev
     }
   });
 
-  // 클릭 이벤트 추가
-  map.on('click', function (event) {
+  map.on('click', function (event) { //Clicking on the map
     // 클릭된 위치의 좌표 가져오기
     const coordinate = event.coordinate;
     
