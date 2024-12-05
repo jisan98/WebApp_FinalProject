@@ -72,17 +72,31 @@ section {
 
 .pollutant {
   flex: 1 1 calc(14% - 20px); /* Dynamic width: Minimum width of 25% of container minus spacing */
-  background-color: #ffd2d2;
   padding: 10px;
   border-radius: 8px;
   text-align: center;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease background-color 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 수평, 수직 이동, 흐림 정도, 색상 */
 }
 
 .pollutant:hover {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
+
+.pollutant.good {
+  background-color: #d1ff9d; /* Green */
+}
+.pollutant.moderate {
+  background-color: #fff176; /* Yellow */
+}
+.pollutant.unhealthy {
+  background-color: #ffb546; /* Orange */
+}
+.pollutant.very-unhealthy {
+  background-color: #ff5e53; /* Red */
+}
+
+
 
 .chart-container {
   display: flex;

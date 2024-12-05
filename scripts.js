@@ -40,6 +40,62 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
+  const idMapping = {
+    pm2_5: "pm25",
+    pm10: "pm10",
+    no2: "nox",
+    nh3: "nh3",
+    co: "co2",
+    so2: "so2",
+    o3: "voc",
+};
+
+function updatePollutantsCardColors(airComponents) {
+  const thresholds = {
+    //U.S. Environmental Protection Agency (EPA)
+      pm25: [12, 35.4, 55.4], // Good, Moderate, Unhealthy
+      pm10: [54, 154, 254],
+      nox: [53, 100, 360],
+      nh3: [50, 100, 200], // Custom
+      co2: [4.4, 9.4, 12.4],
+      so2: [35, 75, 185],
+      voc: [54, 70, 124],
+  };
+
+  for (const [key, value] of Object.entries(airComponents)) {
+      const elementId = idMapping[key]; // 매핑된 id 가져오기
+      if (!elementId) {
+          continue;
+      }
+
+      const element = document.getElementById(elementId);
+
+      if (!element) {
+          continue;
+      }
+
+      const card = element.closest('.pollutant');
+
+      if (!card) {
+          continue;
+      }
+
+      // 기존 상태 클래스를 제거
+      card.classList.remove('good', 'moderate', 'unhealthy', 'very-unhealthy');
+
+      // 적절한 클래스 추가
+      if (value > thresholds[elementId][2]) {
+          card.classList.add('very-unhealthy');
+      } else if (value > thresholds[elementId][1]) {
+          card.classList.add('unhealthy');
+      } else if (value > thresholds[elementId][0]) {
+          card.classList.add('moderate');
+      } else {
+          card.classList.add('good');
+      }
+  }
+}
+
   const apiKey = '01f7efb81e543884be50db1d21e5aa65'; // OpenWeather API key
   const apiKey_2 = '372601c0124e464c85452539242511'; // WeatherAPI API key
   //initial location: Busan
@@ -278,6 +334,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('co2').textContent = airComponents.co.toFixed(1);
         document.getElementById('so2').textContent = airComponents.so2.toFixed(1);
         document.getElementById('voc').textContent = airComponents.o3.toFixed(1);
+
+        updatePollutantsCardColors(airComponents); //Change the color of pollutant cards
 
         // Update chart data
         pm25Data.push(airComponents.pm2_5.toFixed(1));
